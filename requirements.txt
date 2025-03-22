@@ -1,14 +1,7 @@
 joblib==1.4.2
-jupyter==1.0.0
-notebook_shim==0.2.3
 numpy==1.23.5
 matplotlib==3.10.1
-package-name==0.1
-packaging
 pandas==2.2.3
-pgmpy==0.1.26
 pickleshare==0.7.5
 scikit-learn==1.6.1
-scikit-survival==0.24.0
-scipy==1.11.2
 streamlit==1.42.0
