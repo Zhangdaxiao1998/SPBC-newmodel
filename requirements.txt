@@ -1,7 +1,7 @@
-joblib==1.4.2
-numpy==1.23.5
-matplotlib==3.10.1
-pandas==2.2.3
-pickleshare==0.7.5
-scikit-learn==1.6.1
-streamlit==1.42.0
+joblib
+numpy
+matplotlib
+pandas
+pickleshare
+scikit-learn
+streamlit
