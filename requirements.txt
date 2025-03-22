@@ -1,6 +1,5 @@
 joblib
 numpy
-pickle
 matplotlib
 pandas
 pickleshare
