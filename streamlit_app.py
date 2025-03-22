@@ -70,7 +70,7 @@ def predict_survival(new_patient, target_time):
     # st.write(f"95% 置信区间: ({lower_ci_at_t:.4f}, {upper_ci_at_t:.4f})")
     # st.pyplot(fig)
 
-    st.write(f"新患者在 {target_time} 个月后的生存概率: {survival_probs:.4f}")
+    # st.write(f"新患者在 {target_time} 个月后的生存概率: {survival_probs:.4f}")
 
 
 # Streamlit 页面设置
