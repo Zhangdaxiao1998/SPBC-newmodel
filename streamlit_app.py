@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sksurv.ensemble import RandomSurvivalForest
-from scipy.stats import randint
-from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import resample
 import gzip
 import pickle
@@ -29,48 +26,46 @@ def predict_survival(new_patient, target_time):
     time_points = surv_fn[0].x  # 提取时间点
     survival_probs = surv_fn[0].y  # 提取对应的生存概率
 
-    # # ========== 计算置信区间 ==========
-    # n_bootstrap = 2  # 你可以调大，比如 50 以提高稳定性
-    # survival_curves = []
-    #
-    # for _ in range(n_bootstrap):
-    #     X_resampled, y_resampled = resample(X_train, train_yt_merge_y, random_state=_)
-    #     rsf_boot = rsf
-    #     rsf_boot.fit(X_resampled, y_resampled)
-    #     surv_fn_boot = rsf_boot.predict_survival_function(new_patient)
-    #     survival_prob_interp = np.interp(time_points, surv_fn_boot[0].x, surv_fn_boot[0].y)  # 统一时间点
-    #     survival_curves.append(survival_prob_interp)
-    #
-    # survival_curves = np.array(survival_curves)  # 现在所有曲线长度一致
-    #
-    # # 计算均值和置信区间
-    # mean_survival = survival_curves.mean(axis=0)
-    # se_survival = survival_curves.std(axis=0) / np.sqrt(n_bootstrap)
-    # ci_lower = mean_survival - 1.96 * se_survival
-    # ci_upper = mean_survival + 1.96 * se_survival
-    #
-    # fig, ax = plt.subplots()
-    # ax.plot(time_points, mean_survival, label="Survival Probability", color='blue')
-    # ax.fill_between(time_points, ci_lower, ci_upper, color='blue', alpha=0.2, label="95% CI")
-    # ax.set_xlabel("Time")
-    # ax.set_ylabel("Survival Probability")
-    # ax.set_title("Survival Curve with 95% CI")
-    # ax.legend()
+    # ========== 计算置信区间 ==========
+    n_bootstrap = 2  # 你可以调大，比如 50 以提高稳定性
+    survival_curves = []
+
+    for _ in range(n_bootstrap):
+        X_resampled, y_resampled = resample(X_train, train_yt_merge_y, random_state=_)
+        rsf_boot = rsf
+        rsf_boot.fit(X_resampled, y_resampled)
+        surv_fn_boot = rsf_boot.predict_survival_function(new_patient)
+        survival_prob_interp = np.interp(time_points, surv_fn_boot[0].x, surv_fn_boot[0].y)  # 统一时间点
+        survival_curves.append(survival_prob_interp)
+
+    survival_curves = np.array(survival_curves)  # 现在所有曲线长度一致
+
+    # 计算均值和置信区间
+    mean_survival = survival_curves.mean(axis=0)
+    se_survival = survival_curves.std(axis=0) / np.sqrt(n_bootstrap)
+    ci_lower = mean_survival - 1.96 * se_survival
+    ci_upper = mean_survival + 1.96 * se_survival
+
+    fig, ax = plt.subplots()
+    ax.plot(time_points, mean_survival, label="Survival Probability", color='blue')
+    ax.fill_between(time_points, ci_lower, ci_upper, color='blue', alpha=0.2, label="95% CI")
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Survival Probability")
+    ax.set_title("Survival Curve with 95% CI")
+    ax.legend()
 
 
-    # survival_prob_at_t = np.interp(target_time, time_points, mean_survival)
-    # death_risk_at_t = 1 - survival_prob_at_t
+    survival_prob_at_t = np.interp(target_time, time_points, mean_survival)
+    death_risk_at_t = 1 - survival_prob_at_t
     # 查找对应时间点的置信区间
-    # lower_ci_at_t = np.interp(target_time, time_points, ci_lower)
-    # upper_ci_at_t = np.interp(target_time, time_points, ci_upper)
+    lower_ci_at_t = np.interp(target_time, time_points, ci_lower)
+    upper_ci_at_t = np.interp(target_time, time_points, ci_upper)
 
     # 显示预测结果
-    # st.write(f"新患者在 {target_time} 个月后的死亡风险: {death_risk_at_t:.4f}")
-    # st.write(f"新患者在 {target_time} 个月后的生存概率: {survival_prob_at_t:.4f}")
-    # st.write(f"95% 置信区间: ({lower_ci_at_t:.4f}, {upper_ci_at_t:.4f})")
-    # st.pyplot(fig)
-
-    # st.write(f"新患者在 {target_time} 个月后的生存概率: {survival_probs:.4f}")
+    st.write(f"新患者在 {target_time} 个月后的死亡风险: {death_risk_at_t:.4f}")
+    st.write(f"新患者在 {target_time} 个月后的生存概率: {survival_prob_at_t:.4f}")
+    st.write(f"95% 置信区间: ({lower_ci_at_t:.4f}, {upper_ci_at_t:.4f})")
+    st.pyplot(fig)
 
 
 # Streamlit 页面设置
